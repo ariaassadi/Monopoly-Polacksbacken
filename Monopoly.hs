@@ -6,6 +6,7 @@ import PlayerOperations
 import qualified Property
 import qualified Railroad
 import qualified Utility
+import qualified Graphics
 
 {- addPlayers players counts
    Adds 2-4 players to the game
@@ -60,7 +61,7 @@ printGameState ((n, b, p, _):xs) = do
   putStrLn $ n ++ " has $" ++ show b ++ " and is standing on " ++ show p
   printGameState xs
 
--- Gör om funktionen removeBankrupt så den tar in status och clearar alla properties, railroads och utilities som den spelaren äger.
+-- Gï¿½r om funktionen removeBankrupt sï¿½ den tar in status och clearar alla properties, railroads och utilities som den spelaren ï¿½ger.
 
 {- removeBankrupt players nonBankruptPlayers
    Removes all players with an incomce lower than $0
@@ -353,7 +354,7 @@ railroad s p n = do
                       return (Railroad.buy s p name)
           "No"  -> return s
           _     -> railroad' (name, "Nobody", 0) s p
-                   --Stage isn´t relevant when owner is Nobody
+                   --Stage isnï¿½t relevant when owner is Nobody
       railroad' (_, owner, stage) s (pN, _, _, _)
                          | owner == pN = do
                              putStrLn "This is your property."
@@ -395,7 +396,7 @@ utility s p n d = do
                       return (Utility.buy s p name)
           "No"  -> return s
           _     -> utility' (name, "Nobody", 0) s p 0
-                   --Stage and dieroll aren´t relevant when owner is Nobody
+                   --Stage and dieroll arenï¿½t relevant when owner is Nobody
       utility' (_, owner, stage) s (pN, _, _, _) d
                          | owner == pN = do
                              putStrLn "This is your property."
