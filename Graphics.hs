@@ -10,6 +10,25 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Graphics.Gloss.Data.ViewPort
 
+--------------------------------------------------------------------------------
+-- interface
+--------------------------------------------------------------------------------
+
+-- Main function taking in all the functions necessary. write "main" in terminal to execute the program.
+main :: IO ()
+
+-- Prints to a display
+print :: String -> IO ()
+
+-------------------------------------------------------------------------------
+-- implementation
+-------------------------------------------------------------------------------
+
+main = play window background fps initialState render keyPress update
+
+-- TODO: Fix this function
+print str = do
+  putStrLn str
 
 -- Generates a window with name and size.
 window :: Display
@@ -143,10 +162,6 @@ keyPress _ game = game
 -- Frames per second
 fps :: Int
 fps = 60
-
--- Main function taking in all the functions necessary. write "main" in terminal to execute the program.
-main :: IO ()
-main = play window background fps initialState render keyPress update
 
 -- Needed in the main function to keep updating the game with the help of gameUpdater.
 update :: Float -> MonopolyGame -> MonopolyGame
