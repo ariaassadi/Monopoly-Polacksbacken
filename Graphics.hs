@@ -1,5 +1,5 @@
 {-
-INSTRUCTIONS: Start up the board with "run" in terminal.
+INSTRUCTIONS: Start up the board with "main" in terminal.
 Use "W,A,S,D" keys to move a player around.
 Use "1,2,3,4" to switch between playerA, playerB, playerC and playerD
 -}
@@ -17,6 +17,8 @@ import Graphics.Gloss.Data.ViewPort
 -- Draw a Monopoly game state (convert it to a picture).
 render :: MonopolyGame -> IO Picture
 
+-- TODO show MonopolyGame
+
 -- Prints to a display
 print :: String -> IO ()
 
@@ -24,7 +26,11 @@ print :: String -> IO ()
 -- implementation
 -------------------------------------------------------------------------------
 
-run = play window background fps initialState render keyPress update
+{-main = play window background fps initialState render keyPress update-}
+
+-- TODO: Fix this function
+print str = do
+  putStrLn str
 
 -- Generates a window with name and size.
 window :: Display
