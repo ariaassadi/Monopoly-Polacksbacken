@@ -2,6 +2,7 @@ module Main(main) where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.ViewPort
+import Data.IORef
 
 import TypesMonopoly
 import qualified Graphics
@@ -14,8 +15,13 @@ brown = makeColor 0.39453125 0.26171875 0.12890625 1
 lightBlue = light (light (light blue))
 colorOfBoard = dark (makeColor 0.804 0.902 0.816 1)
 
+fps :: Int
+fps = 60
+
 main :: IO()
-main = playIO window background 1 initialState render input update
+main = do
+    hasRenderedSinceUpdate <- newIORef False
+    playIO window background fps initialState (render hasRenderedSinceUpdate) input (update hasRenderedSinceUpdate)
 
 {-
 draw :: Status -> IO Picture
@@ -41,10 +47,10 @@ playersEmpty = [("",0,0,0),("",0,0,0),("",0,0,0),("",0,0,0)]
 initialState :: Status
 initialState =  (playersEmpty, Property.empty, Railroad.empty, Utility.empty)
 
-render :: Status -> IO Picture
-render _ = do
-    Graphics.render
-    {-return (translate 300 0 $ rectangleSolid 10 720)-}
+render :: IORef Bool -> Status -> IO Picture
+render hasRenderedSinceUpdate s = do
+    writeIORef hasRenderedSinceUpdate True
+    Graphics.render (statusToLocation s)
 
 
 input :: Event -> Status -> IO Status
@@ -57,8 +63,8 @@ update dt angle =  do
     return (dt+angle)
 -}
 
-update :: Float -> Status -> IO Status
-update _ (players, pro, rai, uti) = do
+monopolyRound :: Status -> IO Status
+monopolyRound (players, pro, rai, uti) = do
     -- If no players have been added
     if players == playersEmpty then do
         putStrLn "Welcome to Monopoly Polacksbacken."
@@ -85,29 +91,39 @@ update _ (players, pro, rai, uti) = do
                 newStatus <- Monopoly.playerRound playersLeft statusUpdated 0
                 return newStatus
 
-{-
-statusToLocation :: Status -> Game
-statusToLocation (((_ _ pos1 _) (_ _ pos2 _) (_ _ pos3 _) (_ _ pos4 _)) _ _ _) =
-    Game
-    { playerALoc = ((posToX pos1)   ,   (posToY pos1)   )
-    , playerBLoc = ((posToX pos2)   ,   (posToY pos2)-30)
-    , playerCLoc = ((posToX pos3)+30,   (posToY pos3)   )
-    , playerDLoc = ((posToX pos4)+30,   (posToY pos4)-30)
+update :: IORef Bool -> Float -> Status -> IO Status
+update hasRenderedSinceUpdate _ status = do
+    hasRendered <- readIORef hasRenderedSinceUpdate
+    if hasRendered then do
+        writeIORef hasRenderedSinceUpdate False
+        monopolyRound status
+    else do
+        return status
+
+statusToLocation :: Status -> Graphics.MonopolyGame
+statusToLocation ([(_, _, pos1, _), (_, _, pos2, _), (_, _, pos3, _), (_, _, pos4, _)], _, _, _) =
+    Graphics.Game
+    { Graphics.playerALoc = ((posToX pos1)   ,   (posToY pos1)   )
+    , Graphics.playerBLoc = ((posToX pos2)   ,   (posToY pos2)-30)
+    , Graphics.playerCLoc = ((posToX pos3)+30,   (posToY pos3)   )
+    , Graphics.playerDLoc = ((posToX pos4)+30,   (posToY pos4)-30)
+    , Graphics.currentPlayer = Graphics.PlayerA
+    , Graphics.currentString = "Hej"
     }
 
-posToX :: Int -> Int
+posToX :: Int -> Float
 posToX pos
-    | pos < 10 = 300  - 60*pos
-    | pos < 20 = -300
-    | pos < 30 = -300 + 60*(pos-20)
-    | pos < 40 = 300
-    otherwise = 0
+    | pos == 0  = 300
+    | pos < 10  = 285  - fromIntegral (60*pos)
+    | pos <= 20 = -330
+    | pos < 30  = -315 + fromIntegral (60*(pos-20))
+    | pos < 40  = 300
+    | otherwise = 0
 
-posToY :: Int -> Int
+posToY :: Int -> Float
 posToY pos
-    | pos < 10 = -300
-    | pos < 20 = -300 + 60*(pos-10)
-    | pos < 30 = 300
-    | pos < 40 = 300  - 60*(pos-30)
-    otherwise = 0
--}
+    | pos <= 10 = -300
+    | pos < 20  = -285 + fromIntegral (60*(pos-10))
+    | pos <= 30 = 330
+    | pos < 40  = 315  - fromIntegral (60*(pos-30))
+    | otherwise = 0

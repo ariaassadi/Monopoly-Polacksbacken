@@ -5,7 +5,7 @@ Use "1,2,3,4" to switch between playerA, playerB, playerC and playerD
 -}
 
 
-module Graphics(render) where
+module Graphics(render, MonopolyGame(..), Player(..)) where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.ViewPort
@@ -15,13 +15,22 @@ import Graphics.Gloss.Data.ViewPort
 --------------------------------------------------------------------------------
 
 -- Draw a Monopoly game state (convert it to a picture).
-render :: IO Picture
+render :: MonopolyGame -> IO Picture
+
+-- TODO show MonopolyGame
+
+-- Prints to a display
+print :: String -> IO ()
 
 -------------------------------------------------------------------------------
 -- implementation
 -------------------------------------------------------------------------------
 
 {-main = play window background fps initialState render keyPress update-}
+
+-- TODO: Fix this function
+print str = do
+  putStrLn str
 
 -- Generates a window with name and size.
 window :: Display
@@ -36,14 +45,6 @@ brown = makeColor 0.39453125 0.26171875 0.12890625 1
 lightBlue = light (light (light blue))
 colorOfBoard = dark (makeColor 0.804 0.902 0.816 1)
 
-
-{-gameUpdater game
-    Takes the current gamestate and returns a new updated one 
-    PRE: ?
-    RETURNS: a new gamestate with updated status.
-    SIDE EFFECTS: ?
--}
-gameUpdater :: MonopolyGame -> MonopolyGame
 gameUpdater game = game { playerALoc = playerALoc game
                           ,playerBLoc = playerBLoc game
                           ,playerCLoc = playerCLoc game
@@ -169,8 +170,6 @@ data Player = PlayerA | PlayerB | PlayerC | PlayerD deriving (Eq, Show)
 
 
 
-
-
 -- | A data structure to hold the state of the Monopoly game.
 data MonopolyGame = Game
     { playerALoc :: (Float, Float)  --  First players (x, y) location.
@@ -183,7 +182,7 @@ data MonopolyGame = Game
     deriving (Eq, Show) 
 
 
-render = do
+render game = do
     return (pictures [walls, centerSquare, board, playerA, playerB, playerC, playerD])
     where
         {-
@@ -242,6 +241,7 @@ render = do
         goArrow :: Float -> Picture
         goArrow x = translate x (-345) $ scale 0.19 0.19 $ color black $ text "--"
 
+
         -- The arrow tip
         goArrowTip :: Picture
         goArrowTip = translate (300) (-335) $ scale 0.2 0.2 $ color black $ (rotate (270) (polygon [ (-50,-50), ( 0, 0), ( 50,-50), ( 0,100) ]))
@@ -274,7 +274,7 @@ render = do
                              uncurry translate (a+8, b-5) $ color black $ circleSolid 4
                            ]
                     where
-                        (a, b) = (300,-300)
+                        (a, b) = playerALoc game
         -- Player B which is a blue car.
         playerB = Pictures [ uncurry translate (c, d) $ color black $ rectangleSolid 30 10,
                              uncurry translate ((c+2), (d+4)) $ color black $ rectangleSolid 20 10,
@@ -284,7 +284,7 @@ render = do
                              uncurry translate (c+8, d-5) $ color black $ circleSolid 4
                            ]
             where
-                (c, d) = (300,-330)
+                (c, d) = playerBLoc game
         -- Player C which is a green car.
         playerC = Pictures [ uncurry translate (e, f) $ color black $ rectangleSolid 30 10,
                              uncurry translate ((e+2), (f+4)) $ color black $ rectangleSolid 20 10,
@@ -294,7 +294,7 @@ render = do
                              uncurry translate (e+8, f-5) $ color black $ circleSolid 4
                            ]
             where
-                (e, f) = (330, -300)
+                (e, f) = playerCLoc game
         
         -- Player D which is an orange car.
         playerD = Pictures [ uncurry translate (g, h) $ color black $ rectangleSolid 30 10,
@@ -305,7 +305,7 @@ render = do
                              uncurry translate (g+8, h-5) $ color black $ circleSolid 4
                            ]
             where
-                (g, h) = (330, -330)
+                (g, h) = playerDLoc game
         
         -- All the player colors
         playerACol = dark red
@@ -428,7 +428,7 @@ render = do
                                 streetNames (38) (-310) 0 "Income",
                                 streetNames (38) (-320) 0 "Tax",
                                 streetNames (38) (-330) 0 "Pay",
-                                streetNames (38) (-345) 0 "200 $",
+                                streetNames (38) (-345) 0 "$ 200",
 
                                 streetNames (-22) (-310) 0 "Polacks",
                                 streetNames (-22) (-325) 0 "Backen",

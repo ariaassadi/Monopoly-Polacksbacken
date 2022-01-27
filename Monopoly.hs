@@ -28,7 +28,7 @@ addPlayers :: [Player] -> Int -> IO [Player]
 -- VARIANT: length players
 printGameState :: [Player] -> IO ()
 
-{- removeBankrupt players nonBankruptPlayers
+{- removeBankrupt players playersUpdated
    Removes all players with an incomce lower than $0
    RETURNS: players without the bankrupt ones
    SIDE-EFFECTS: Displays information on the screen
@@ -47,6 +47,8 @@ playerRound :: [Player] -> Status -> Int -> IO Status
 -------------------------------------------------------------------------------
 -- implementation
 -------------------------------------------------------------------------------
+
+--A player standing on position 100 is out of the game
 
 addPlayers players 4 = do
   putStrLn "You have reached the maximal amount of players."
@@ -83,22 +85,30 @@ run = do
   players <- addPlayers [] 0
   play (players, Property.empty, Railroad.empty, Utility.empty)
 
+{- numberToColor number 
+-}
+numberToColor :: Int -> String
+numberToColor 1 = "Red"
+numberToColor 2 = "Blue"
+numberToColor 3 = "Green"
+numberToColor 4 = "Yellow"
 
 printGameState [] = do
   return ()
+printGameState ((n, _, 100, _):xs) = do
+  putStrLn $ n ++ " is out of the game"
 printGameState ((n, b, p, _):xs) = do
-  putStrLn $ n ++ " has $" ++ show b ++ " and is standing on " ++ show p
+  putStrLn $ n ++ " (" ++ (numberToColor (4-length(xs))) ++ ") has $" ++ show b ++ " and is standing on " ++ show p
   printGameState xs
 
--- G�r om funktionen removeBankrupt s� den tar in status och clearar alla properties, railroads och utilities som den spelaren �ger.
-
-
-removeBankrupt [] notBankrupt = return notBankrupt
-removeBankrupt ((nam, bal, pos, jai):xs) notBankrupt
-  | bal > 0 = removeBankrupt xs (notBankrupt ++ [(nam, bal, pos, jai)])
+-- TODO: Gör om funktionen removeBankrupt så den tar in status och clearar alla properties, railroads och utilities som den spelaren äger.
+removeBankrupt [] playersUpdated = return playersUpdated
+removeBankrupt ((nam, bal, pos, jai):xs) playersUpdated
+  | bal > 0 = removeBankrupt xs (playersUpdated ++ [(nam, bal, pos, jai)])
   | otherwise = do
       putStrLn $ nam ++ " just got bankrupt and has to leave the game immediately."
-      removeBankrupt xs notBankrupt
+      -- A player that is out has position 100
+      removeBankrupt xs (playersUpdated ++ [(nam, 0, 100, 0)])
      
 {- play (players, properties, railroads, utilities)
    This is what happens every new round
@@ -149,6 +159,9 @@ playerRound []                      s _ = return (s)
 playerRound (cPla:xs)               s 3 = do
   goToJail <- jail s cPla
   playerRound xs goToJail 0 
+--Position 100 means that a player is out
+playerRound ((_, _, 100, _):xs)     s _ = do
+  playerRound xs s 0
 playerRound ((nam, bal, pos, 0):xs) s c = do
   putStrLn ""
   putStr $ nam ++ "'s turn. Press Enter to throw."
