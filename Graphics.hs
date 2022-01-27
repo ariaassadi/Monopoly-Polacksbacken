@@ -17,8 +17,6 @@ import Graphics.Gloss.Data.ViewPort
 -- Draw a Monopoly game state (convert it to a picture).
 render :: MonopolyGame -> IO Picture
 
--- TODO show MonopolyGame
-
 -- Prints to a display
 print :: String -> IO ()
 
@@ -27,10 +25,6 @@ print :: String -> IO ()
 -------------------------------------------------------------------------------
 
 run = play window background fps initialState render keyPress update
-
--- TODO: Fix this function
-print str = do
-  putStrLn str
 
 -- Generates a window with name and size.
 window :: Display
