@@ -1,5 +1,5 @@
 {-
-INSTRUCTIONS: Start up the board with "main" in terminal.
+INSTRUCTIONS: Start up the board with "run" in terminal.
 Use "W,A,S,D" keys to move a player around.
 Use "1,2,3,4" to switch between playerA, playerB, playerC and playerD
 -}
@@ -26,7 +26,7 @@ print :: String -> IO ()
 -- implementation
 -------------------------------------------------------------------------------
 
-{-main = play window background fps initialState render keyPress update-}
+run = play window background fps initialState render keyPress update
 
 -- TODO: Fix this function
 print str = do
