@@ -5,17 +5,18 @@ Use "1,2,3,4" to switch between playerA, playerB, playerC and playerD
 -}
 
 
-module Main(main) where
+module Graphics(render) where
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.ViewPort
 
 --------------------------------------------------------------------------------
 -- interface
 --------------------------------------------------------------------------------
 
--- Main function taking in all the functions necessary. write "main" in terminal to execute the program.
-main :: IO ()
+-- Draw a Monopoly game state (convert it to a picture).
+render :: IO Picture
+
 
 -- Prints to a display
 print :: String -> IO ()
@@ -24,7 +25,7 @@ print :: String -> IO ()
 -- implementation
 -------------------------------------------------------------------------------
 
-main = play window background fps initialState render keyPress update
+{-main = play window background fps initialState render keyPress update-}
 
 -- TODO: Fix this function
 print str = do
@@ -56,6 +57,7 @@ gameUpdater game = game { playerALoc = playerALoc game
                           ,playerCLoc = playerCLoc game
                           ,playerDLoc = playerDLoc game
                          ,currentPlayer = currentPlayer game
+                         ,currentString = currentString game
                          }
 
 
@@ -184,16 +186,20 @@ data MonopolyGame = Game
     , playerCLoc :: (Float, Float)  --  Third players (x, y) location.
     , playerDLoc :: (Float, Float) --  Fourth players (x, y) location. 
     , currentPlayer :: Player -- Has four choices of players and holding one as selected currentPlayer
-
+    , currentString :: String
     } 
     deriving (Eq, Show) 
 
--- | Draw a Monopoly game state (convert it to a picture).
-render :: MonopolyGame -> Picture
-render game = pictures [walls, centerSquare, board, playerA, playerB, playerC, playerD]
-    
+
+render = do
+    return (pictures [walls, centerSquare, board, playerA, playerB, playerC, playerD])
     where
-        
+        {-
+        printText :: Float -> Float -> Color -> Picture
+        printText x y col = translate x y $ scale 0.5 0.5 $ color col $ (text curr)
+            where
+                curr = currentString game      
+        -}
         -- centerSquare is the square with the same color as the background to cover the center of the board.
         centerSquare :: Picture
         centerSquare = color colorOfBoard $ rectangleSolid 530 530
@@ -268,7 +274,6 @@ getLine
         streetNames :: Float -> Float -> Float -> String -> Picture
         streetNames x y rot str = translate x y $ scale 0.08 0.08 $ rotate rot $ text str
 
-        
         -- Player A which is a red car.
         playerA = Pictures [ uncurry translate (a, b) $ color black $ rectangleSolid 30 10,
                              uncurry translate ((a+2), (b+4)) $ color black $ rectangleSolid 20 10,
@@ -278,7 +283,7 @@ getLine
                              uncurry translate (a+8, b-5) $ color black $ circleSolid 4
                            ]
                     where
-                        (a, b) = playerALoc game
+                        (a, b) = (300,-300)
         -- Player B which is a blue car.
         playerB = Pictures [ uncurry translate (c, d) $ color black $ rectangleSolid 30 10,
                              uncurry translate ((c+2), (d+4)) $ color black $ rectangleSolid 20 10,
@@ -288,7 +293,7 @@ getLine
                              uncurry translate (c+8, d-5) $ color black $ circleSolid 4
                            ]
             where
-                (c, d) = playerBLoc game
+                (c, d) = (300,-330)
         -- Player C which is a green car.
         playerC = Pictures [ uncurry translate (e, f) $ color black $ rectangleSolid 30 10,
                              uncurry translate ((e+2), (f+4)) $ color black $ rectangleSolid 20 10,
@@ -298,7 +303,7 @@ getLine
                              uncurry translate (e+8, f-5) $ color black $ circleSolid 4
                            ]
             where
-                (e, f) = playerCLoc game
+                (e, f) = (330, -300)
         
         -- Player D which is an orange car.
         playerD = Pictures [ uncurry translate (g, h) $ color black $ rectangleSolid 30 10,
@@ -309,7 +314,7 @@ getLine
                              uncurry translate (g+8, h-5) $ color black $ circleSolid 4
                            ]
             where
-                (g, h) = playerDLoc game
+                (g, h) = (330, -330)
         
         -- All the player colors
         playerACol = dark red
@@ -408,6 +413,9 @@ getLine
                                 streetChance (-170) (330) (180),
                                 streetChance (-170.5) (330) (180),
                                 streetChance (-171) (330) (180),
+                                streetChance (325) (-75) 270,
+                                streetChance (325.5) (-75) 270,
+                                streetChance (326) (-75) 270,
 
                                 jailDrawer (-300) (-300) 0.23 black 0 250 250,
                                 jailDrawer (-300) (-300) 0.2 orange 0 250 250,
@@ -534,10 +542,6 @@ getLine
                                 streetNames (320) (-24) 270 "Skolan",
                                 streetNames (345) (-22) 270 "$ 200",
 
-                                streetNames (325) (-75) 270 "?",
-                                streetNames (325.5) (-75) 270 "?",
-                                streetNames (326) (-75) 270 "?",
-
                                 streetNames (310) (-140) 270 "UTH-",
                                 streetNames (320) (-140) 270 "Gard",
                                 streetNames (345) (-140) 270 "$ 350",
@@ -559,4 +563,5 @@ initialState = Game
   , playerCLoc = (330, (-300))
   , playerDLoc = (330, (-330))
   , currentPlayer = PlayerA
+  , currentString = "Hej"
   }

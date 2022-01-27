@@ -1,3 +1,5 @@
+module Monopoly(addPlayers, printGameState, removeBankrupt, playerRound) where
+
 import System.Random
 import Test.HUnit
 
@@ -7,12 +9,45 @@ import qualified Property
 import qualified Railroad
 import qualified Utility
 
+
+-------------------------------------------------------------------------------
+-- interface
+-------------------------------------------------------------------------------
+
 {- addPlayers players counts
    Adds 2-4 players to the game
    RETURNS: A list of players with $1500 standing on poistion 0
    SIDE-EFFECTS: Displays "Add player: " and takes input from the players
  -}
 addPlayers :: [Player] -> Int -> IO [Player]
+
+{- printGameState players
+   Prints the current status of each player
+   SIDE-EFFECTS: Displays each players state on the screen
+ -}
+-- VARIANT: length players
+printGameState :: [Player] -> IO ()
+
+{- removeBankrupt players nonBankruptPlayers
+   Removes all players with an incomce lower than $0
+   RETURNS: players without the bankrupt ones
+   SIDE-EFFECTS: Displays information on the screen
+ -}
+-- VARIANT: length players
+removeBankrupt :: [Player] -> [Player] -> IO [Player]
+
+{- playerRound playersTurn (players, properties, railroads, utilities) doubleCounts
+   This is what happens every single round (around the table).
+   RETURNS: status with updated values
+   SIDE-EFFECTS: Displays information on the screen. Takes input from the players
+ -}
+-- VARIANT: length playersTurn
+playerRound :: [Player] -> Status -> Int -> IO Status 
+
+-------------------------------------------------------------------------------
+-- implementation
+-------------------------------------------------------------------------------
+
 addPlayers players 4 = do
   putStrLn "You have reached the maximal amount of players."
   return players
@@ -48,12 +83,7 @@ run = do
   players <- addPlayers [] 0
   play (players, Property.empty, Railroad.empty, Utility.empty)
 
-{- printGameState players
-   Prints the current status of each player
-   SIDE-EFFECTS: Displays each players state on the screen
- -}
--- VARIANT: length players
-printGameState :: [Player] -> IO ()
+
 printGameState [] = do
   return ()
 printGameState ((n, b, p, _):xs) = do
@@ -62,13 +92,7 @@ printGameState ((n, b, p, _):xs) = do
 
 -- G�r om funktionen removeBankrupt s� den tar in status och clearar alla properties, railroads och utilities som den spelaren �ger.
 
-{- removeBankrupt players nonBankruptPlayers
-   Removes all players with an incomce lower than $0
-   RETURNS: players without the bankrupt ones
-   SIDE-EFFECTS: Displays information on the screen
- -}
--- VARIANT: length players
-removeBankrupt :: [Player] -> [Player] -> IO [Player]
+
 removeBankrupt [] notBankrupt = return notBankrupt
 removeBankrupt ((nam, bal, pos, jai):xs) notBankrupt
   | bal > 0 = removeBankrupt xs (notBankrupt ++ [(nam, bal, pos, jai)])
@@ -119,13 +143,7 @@ findPlayers name (((nam, bal, pos, jai):xs), pro, rai, uti)
 rollDice :: IO Int
 rollDice = getStdRandom (randomR (1,6))
             
-{- playerRound playersTurn (players, properties, railroads, utilities) doubleCounts
-   This is what happens every single round (around the table).
-   RETURNS: status with updated values
-   SIDE-EFFECTS: Displays information on the screen. Takes input from the players
- -}
--- VARIANT: length playersTurn
-playerRound :: [Player] -> Status -> Int -> IO Status 
+
 playerRound []                      s _ = return (s)
 --Throwing a double 3 times leads to Jail
 playerRound (cPla:xs)               s 3 = do
