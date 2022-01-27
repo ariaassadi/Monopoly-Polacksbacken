@@ -243,7 +243,7 @@ render game = pictures [walls, centerSquare, board, playerA, playerB, playerC, p
         -- Part of the GO arrow
         goArrow :: Float -> Picture
         goArrow x = translate x (-345) $ scale 0.19 0.19 $ color black $ text "--"
-
+getLine
 
         -- The arrow tip
         goArrowTip :: Picture
