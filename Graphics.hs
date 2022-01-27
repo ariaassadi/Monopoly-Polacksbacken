@@ -17,19 +17,11 @@ import Graphics.Gloss.Data.ViewPort
 -- Draw a Monopoly game state (convert it to a picture).
 render :: IO Picture
 
-
--- Prints to a display
-print :: String -> IO ()
-
 -------------------------------------------------------------------------------
 -- implementation
 -------------------------------------------------------------------------------
 
 {-main = play window background fps initialState render keyPress update-}
-
--- TODO: Fix this function
-print str = do
-  putStrLn str
 
 -- Generates a window with name and size.
 window :: Display
@@ -249,7 +241,6 @@ render = do
         -- Part of the GO arrow
         goArrow :: Float -> Picture
         goArrow x = translate x (-345) $ scale 0.19 0.19 $ color black $ text "--"
-getLine
 
         -- The arrow tip
         goArrowTip :: Picture
